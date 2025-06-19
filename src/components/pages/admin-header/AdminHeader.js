@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Layout, Dropdown, Menu, Avatar, Popconfirm, message } from 'antd';
-import { withRouter } from '../../../config/withRouter'; // 👈 qo‘shing
+import { Layout, Dropdown, Menu, Avatar, Popconfirm, message, Button } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { withRouter } from '../../../config/withRouter';
 import api from '../../../api/axios-config';
 
 const { Header } = Layout;
@@ -8,6 +9,7 @@ const { Header } = Layout;
 class AdminHeader extends Component {
     state = {
         username: '',
+        firstname: '',
         lastname: '',
     };
 
@@ -19,8 +21,8 @@ class AdminHeader extends Component {
         api.get('/user-info/get-user')
             .then((res) => {
                 if (res.data.success) {
-                    const { username, lastname } = res.data.data;
-                    this.setState({ username, lastname: lastname || '' });
+                    const { username, firstname, lastname } = res.data.data;
+                    this.setState({ username, firstname, lastname: lastname || '' });
                 } else {
                     message.warning('Foydalanuvchi ma’lumotlarini olishda xatolik!');
                 }
@@ -40,11 +42,18 @@ class AdminHeader extends Component {
     };
 
     handleSettings = () => {
-        this.props.navigate('/admin/settings'); // 👈 react-router navigatsiya
+        this.props.navigate('/admin/settings');
+    };
+
+    toggleSidebar = () => {
+        if (this.props.toggleMenu) {
+            this.props.toggleMenu(!this.props.menuVisible);
+        }
     };
 
     render() {
-        const { username, lastname } = this.state;
+        const { username, lastname, firstname } = this.state;
+        const { menuVisible } = this.props;
 
         const menu = (
             <Menu>
@@ -65,16 +74,31 @@ class AdminHeader extends Component {
         );
 
         return (
-            <Header style={{ background: '#fff', padding: '0 20px', display: 'flex', justifyContent: 'flex-end' }}>
+            <Header
+                style={{
+                    background: '#fff',
+                    padding: '0 20px',
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                }}
+            >
+                {/* Sidebar toggle button */}
+                <Button type="text" onClick={this.toggleSidebar} style={{fontSize: '18px'}}>
+                    {menuVisible ? <MenuFoldOutlined/> : <MenuUnfoldOutlined/>}
+                </Button>
+
+                {/* User dropdown */}
                 <Dropdown overlay={menu} placement="bottomRight">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                         <Avatar>{username ? username[0].toUpperCase() : '?'}</Avatar>
-                        <span>{username} {lastname}</span>
+                        <span>{firstname} {lastname}</span>
                     </div>
                 </Dropdown>
+
             </Header>
         );
     }
 }
 
-export default withRouter(AdminHeader); // 👈 export qilishda withRouter ni o‘rab chiqish muhim
+export default withRouter(AdminHeader);
