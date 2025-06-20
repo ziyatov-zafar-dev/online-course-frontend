@@ -61,7 +61,7 @@ class UserGroups extends Component {
                 render: (_, record) =>
                     record.hasTelegramChannel && record.telegramChannel ? (
                         <a href={record.telegramChannel} target="_blank" rel="noopener noreferrer">
-                            {record.telegramChannel}
+                            Kanalga ulanish
                         </a>
                     ) : (
                         <p style={{

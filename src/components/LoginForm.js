@@ -16,7 +16,9 @@ class LoginForm extends Component {
             localStorage.setItem('role', role);
 
             message.success('Login successful!');
-            window.location.href = '/dashboard';
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
         } catch (err) {
             message.error('Login failed');
         }

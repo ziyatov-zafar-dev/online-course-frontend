@@ -3,28 +3,34 @@ import {
     Table, Tag, message, Pagination, Input, Row, Col, Button, Form, Modal
 } from 'antd';
 import api from '../../../api/axios-config';
-import { withRouter } from '../../../config/withRouter'; // ⬅️ HOC import
+import { withRouter } from '../../../config/withRouter';
+import debounce from 'lodash.debounce';
 
 class Users extends Component {
-    state = {
-        users: [],
-        loading: false,
-        totalElements: 0,
-        page: 0,
-        size: 5,
-        filters: {
-            searchUsernameExact: '',
-            searchId: ''
-        },
-        addTeacherModalVisible: false,
-        addTeacherForm: {
-            firstname: '',
-            lastname: '',
-            username: '',
-            email: '',
-            password: ''
-        }
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            users: [],
+            loading: false,
+            totalElements: 0,
+            page: 0,
+            size: 5,
+            filters: {
+                searchUsernameExact: '',
+                searchId: '',
+                searchGeneral: ''
+            },
+            addTeacherModalVisible: false,
+            addTeacherForm: {
+                firstname: '',
+                lastname: '',
+                username: '',
+                email: '',
+                password: ''
+            }
+        };
+        this.handleSearchGeneralDebounced = debounce(this.handleSearchGeneral, 400);
+    }
 
     componentDidMount() {
         this.fetchAllUsers();
@@ -81,6 +87,30 @@ class Users extends Component {
             message.error("ID orqali qidirishda xatolik");
             this.setState({ loading: false });
         });
+    };
+
+    handleSearchGeneral = () => {
+        const query = this.state.filters.searchGeneral.trim();
+        if (!query) return;
+
+        this.setState({ loading: true });
+        api.get(`/admin/user/search-by-username-and-firstname-and-lastname-and-email?query=${query}`)
+            .then(res => {
+                if (res.data.success) {
+                    this.setState({
+                        users: res.data.data,
+                        totalElements: res.data.data.length,
+                        loading: false
+                    });
+                } else {
+                    message.warning("Hech qanday foydalanuvchi topilmadi");
+                    this.setState({ loading: false });
+                }
+            })
+            .catch(() => {
+                message.error("Umumiy qidiruvda xatolik yuz berdi");
+                this.setState({ loading: false });
+            });
     };
 
     handleAddTeacherSubmit = () => {
@@ -163,7 +193,13 @@ class Users extends Component {
                             placeholder="Username bo‘yicha qidirish"
                             value={filters.searchUsernameExact}
                             onChange={(e) =>
-                                this.setState({ filters: { ...filters, searchUsernameExact: e.target.value } })
+                                this.setState({
+                                    filters: {
+                                        searchUsernameExact: e.target.value,
+                                        searchId: '',
+                                        searchGeneral: ''
+                                    }
+                                })
                             }
                             onSearch={this.handleSearchByUsernameExact}
                             allowClear
@@ -174,9 +210,32 @@ class Users extends Component {
                             placeholder="ID bo‘yicha qidirish"
                             value={filters.searchId}
                             onChange={(e) =>
-                                this.setState({ filters: { ...filters, searchId: e.target.value } })
+                                this.setState({
+                                    filters: {
+                                        searchId: e.target.value,
+                                        searchUsernameExact: '',
+                                        searchGeneral: ''
+                                    }
+                                })
                             }
                             onSearch={this.handleSearchById}
+                            allowClear
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <Input
+                            placeholder="Ism, familiya, email, username..."
+                            value={filters.searchGeneral}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                this.setState({
+                                    filters: {
+                                        searchGeneral: value,
+                                        searchId: '',
+                                        searchUsernameExact: ''
+                                    }
+                                }, this.handleSearchGeneralDebounced);
+                            }}
                             allowClear
                         />
                     </Col>
@@ -272,4 +331,4 @@ class Users extends Component {
     }
 }
 
-export default withRouter(Users); // ✅ export HOC bilan
+export default withRouter(Users);
