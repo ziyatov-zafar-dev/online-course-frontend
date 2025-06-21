@@ -6,7 +6,6 @@ import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
-import UserPage from './components/pages/UserPage';
 import {ProtectedRoute} from './routes';
 import {withLocation} from './config/withLocation'; // location o‘tkazish uchun
 
@@ -20,7 +19,14 @@ import Teachers from './components/pages/admin-page-control/Teachers';
 import Statistics from './components/pages/admin-page-control/Statistics';
 import UserGroups from './components/pages/admin-page-control/UserGroups';
 import SettingsPage from "./components/pages/admin-header/SettingsPage";
-import {Button, message} from "antd"; // ✅ yangi sahifa
+import {Button, message} from "antd";
+import StudentDashboard from "./components/StudentDashboard";
+import MyGroup from "./components/pages/student/MyGroup";
+import Profile from "./components/pages/student/Profile";
+import Settings from "./components/pages/student/Settings";
+import StudentCourses from "./components/pages/student/StudentCourses";
+import CourseGroups from "./components/pages/student/CourseGroups";
+import MyGroups from "./components/pages/student/MyGroup"; // ✅ yangi sahifa
 
 const AdminDashboardWithLocation = withLocation(AdminDashboard);
 
@@ -53,6 +59,31 @@ class App extends Component {
                             </div>
                         </ProtectedRoute>
                     }/>
+
+                    <Route path="/student/dashboard" element={
+                        <ProtectedRoute roles={['ROLE_STUDENT']}>
+                            <StudentDashboard/>
+                            {/*<Route path="*" element={<Navigate to="/student/dashboard/courses" />} />*/}
+                        </ProtectedRoute>
+                    }>
+                        <Route path="my-courses" element={<MyGroup/>}/>
+                        <Route
+                            path="/student/dashboard/courses/:courseId/groups"
+                            element={<CourseGroups/>}
+                        />
+                        <Route
+                            path="/student/dashboard/groups/:groupId"
+                            element={<MyGroup/>}
+                        />
+                        {/*<Route path="/student/dashboard/my-groups/:groupId" element={<ProtectedRoute roles={['ROLE_STUDENT']}><MyGroups/></ProtectedRoute>} />*/}
+
+                        <Route path="courses" element={<StudentCourses/>}/>
+                        <Route path="profile" element={<Profile/>}/>
+                        <Route path="settings" element={<Settings/>}/>
+                        <Route index element={<Navigate to="/student/dashboard/courses"/>}/>
+                        <Route path="*" element={<Navigate to="/student/dashboard/courses"/>}/>
+                    </Route>
+
 
                     <Route path="/admin" element={
                         <ProtectedRoute roles={['ROLE_ADMIN']}>

@@ -10,7 +10,7 @@ const Dashboard = () => {
         if (role === 'ROLE_ADMIN') {
             navigate('/admin/users');
         } else if (role === 'ROLE_STUDENT') {
-            navigate('/user');
+            navigate('/student/dashboard/courses');
         }else if (role === 'ROLE_TEACHER') {
             navigate('/teacher/dashboard');
         } else {

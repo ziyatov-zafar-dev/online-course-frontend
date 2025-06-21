@@ -65,14 +65,47 @@ class Courses extends Component {
             .catch(() => message.error("❌ Teacherlarni yuklashda xatolik"));
     };
 
+    // fetchGroupsByCourse = (courseId) => {
+    //     const {groupPage, groupSize} = this.state;
+    //     this.setState({loading: true});
+    //     api.get(`/admin/group/get-all-groups-by-course-id/${courseId}?page=${groupPage}&size=${groupSize}`)
+    //         .then(res => {
+    //             if (res.data.success) {
+    //
+    //
+    //
+    //                 this.setState({
+    //                     groups: res.data.data.content,
+    //                     groupTotal: res.data.data.totalElements,
+    //                     showGroups: true,
+    //                     selectedCourse: courseId
+    //                 });
+    //             }
+    //         })
+    //         .catch(() => message.error("❌ Guruhlarni yuklashda xatolik"))
+    //         .finally(() => this.setState({loading: false}));
+    // };
     fetchGroupsByCourse = (courseId) => {
         const {groupPage, groupSize} = this.state;
         this.setState({loading: true});
         api.get(`/admin/group/get-all-groups-by-course-id/${courseId}?page=${groupPage}&size=${groupSize}`)
-            .then(res => {
+            .then(async res => {
                 if (res.data.success) {
+                    const groups = res.data.data.content;
+
+                    // Har bir guruh uchun student sonini olish
+                    const updatedGroups = await Promise.all(groups.map(async group => {
+                        try {
+                            const response = await api.get(`/admin/group/get-group-students/${group.id}`);
+                            const studentCount = response.data.data.length;
+                            return {...group, studentCount};
+                        } catch (err) {
+                            return {...group, studentCount: 0};
+                        }
+                    }));
+
                     this.setState({
-                        groups: res.data.data.content,
+                        groups: updatedGroups,
                         groupTotal: res.data.data.totalElements,
                         showGroups: true,
                         selectedCourse: courseId
@@ -171,6 +204,11 @@ class Courses extends Component {
         const {courses, loading, page, size, total} = this.state;
 
         const columns = [
+            {
+                title: '№',
+                key: 'index',
+                render: (_, __, index) => (this.state.page * this.state.size) + index + 1,
+            },
             {
                 title: '📘 Nomi',
                 dataIndex: 'name',
@@ -296,14 +334,8 @@ class Courses extends Component {
                 title: "🧑‍🎓 Talabalar soni",
                 dataIndex: "studentCount",
                 key: "studentCount"
-            },
-            {
-                title: "⏱️ Boshlanish vaqti",
-                dataIndex: "startTime",
-                key: "startTime"
             }
         ];
-
         return (
             <>
                 <Button onClick={() => this.setState({showGroups: false})} style={{marginBottom: 16}}>
