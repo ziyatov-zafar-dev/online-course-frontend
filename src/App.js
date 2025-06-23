@@ -26,7 +26,8 @@ import Profile from "./components/pages/student/Profile";
 import Settings from "./components/pages/student/Settings";
 import StudentCourses from "./components/pages/student/StudentCourses";
 import CourseGroups from "./components/pages/student/CourseGroups";
-import MyGroups from "./components/pages/student/MyGroup"; // ✅ yangi sahifa
+import MyGroups from "./components/pages/student/MyGroup";
+import StudentsPage from "./components/pages/admin-page-control/StudentsPage"; // ✅ yangi sahifa
 
 const AdminDashboardWithLocation = withLocation(AdminDashboard);
 
@@ -99,6 +100,7 @@ class App extends Component {
                         <Route path="teachers" element={<Teachers/>}/>
                         <Route path="statistics" element={<Statistics/>}/>
                         <Route path="settings" element={<SettingsPage/>}/>
+                        <Route path="students" element={<StudentsPage/>}/>
                     </Route>
 
                     <Route path="*" element={<Navigate to="/dashboard"/>}/>

@@ -92,11 +92,10 @@ class Courses extends Component {
             .then(async res => {
                 if (res.data.success) {
                     const groups = res.data.data.content;
-
-                    // Har bir guruh uchun student sonini olish
                     const updatedGroups = await Promise.all(groups.map(async group => {
                         try {
-                            const response = await api.get(`/admin/group/get-group-students/${group.id}`);
+                            const response = await api.get(`/admin/group/get-group-students/${group.pkey}`);
+                            console.log('response',response);
                             const studentCount = response.data.data.length;
                             return {...group, studentCount};
                         } catch (err) {
