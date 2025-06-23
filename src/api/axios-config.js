@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8090/api',
+    baseURL: 'https://server-online-course-backend.onrender.com/api',
 });
 
 instance.interceptors.request.use((config) => {

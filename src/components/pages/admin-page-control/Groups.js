@@ -97,15 +97,19 @@ class Groups extends Component {
         const request = editMode
             ? api.put(url, payload)
             : api.post(url, payload);
+        console.log(`payload`);
+        console.log(payload);
 
         request
             .then(res => {
                 if (res.data.success) {
+                    console.log('result');
+                    console.log(res.data);
                     message.success(editMode ? "✅ Guruh o‘zgartirildi" : "✅ Guruh qo‘shildi");
                     this.setState({ visible: false });
                     this.fetchGroups();
                 } else {
-                    message.error("❌ Xatolik yuz berdi");
+                    message.error("❌ Xatolik yuz berdi, ");
                 }
             })
             .catch(() => message.error("❌ Server bilan ulanishda xatolik"));
