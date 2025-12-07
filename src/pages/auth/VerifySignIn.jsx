@@ -43,6 +43,11 @@ export function VerifySignIn(props) {
 
 		try {
 			const res = await verifySignIn(email, otp)
+			const token = res.data.data?.accessToken
+
+			if (token) {
+				localStorage.setItem("token", token) // ✅ Token saqlash
+			}
 			if (res?.data?.success) {
 				navigate("/dashboard")
 			} else {
@@ -71,7 +76,7 @@ export function VerifySignIn(props) {
 				</CardTitle>
 
 				<CardDescription className='text-sm text-gray-500 mt-1'>
-					6 xonali kod emailga yuborildi:{" "}
+					6 xonali kod emailga yuborildi <br />
 					<span className='font-semibold text-blue-600 break-all'>{email}</span>
 				</CardDescription>
 			</CardHeader>

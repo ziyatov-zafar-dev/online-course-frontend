@@ -7,6 +7,9 @@ import GoogleAuthHandler from "@/pages/GoogleAuthHandler"
 import NotFound from "@/pages/NotFound"
 import OtpIn from "@/pages/OtpIn"
 import OtpUp from "@/pages/OtpUp"
+// user
+import ProfileForm from "@/pages/users/ProfileForm"
+import ProfileImageUpload from "@/pages/users/ProfileImageUpload"
 import { Navigate, Route, Routes } from "react-router-dom"
 
 const AppRouter = () => {
@@ -22,6 +25,13 @@ const AppRouter = () => {
 			<Route path='/forgot-password' element={<ForgotPassword />} />
 			<Route path='/reset-password' element={<ResetPassword />} />
 			<Route path='/google-auth-success' element={<GoogleAuthHandler />} />
+
+			{/* USER */}
+			<Route
+				path='/users/profile-image-upload'
+				element={<ProfileImageUpload />}
+			/>
+			<Route path='/users/profile' element={<ProfileForm />} />
 
 			{/* 404 PAGE */}
 			<Route path='*' element={<NotFound />} />

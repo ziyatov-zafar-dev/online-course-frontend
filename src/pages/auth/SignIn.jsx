@@ -34,6 +34,7 @@ const SignIn = () => {
 
 		try {
 			const res = await signIn(form)
+
 			if (res?.data?.success) {
 				navigate("/signin/verify", { state: { email: form.email } })
 			}
@@ -48,40 +49,15 @@ const SignIn = () => {
 
 	return (
 		<div
-			className='
-        min-h-screen w-full 
-        flex items-center justify-center 
-        px-4 py-6
-      '
+			className='min-h-screen w-full flex items-center justify-center px-4 py-6'
 			style={{ backgroundImage: `url(${Bg})` }}
 		>
-			<Card
-				className='
-        w-full max-w-5xl 
-        flex flex-col md:flex-row 
-        rounded-3xl overflow-hidden
-        bg-white/90 backdrop-blur-lg
-      '
-			>
+			<Card className='w-full max-w-5xl flex flex-col md:flex-row rounded-3xl overflow-hidden bg-white/90 backdrop-blur-lg'>
 				{/* LEFT SIDE */}
-				<CardContent
-					className='
-          w-full md:w-1/2 
-          px-6 sm:px-10 
-          py-10 
-          text-neutral-900
-          flex flex-col justify-center
-        '
-				>
+				<CardContent className='w-full md:w-1/2 px-6 sm:px-10 py-10 text-neutral-900 flex flex-col justify-center'>
 					{/* Logo */}
 					<div className='mb-8 flex items-center gap-2 text-sm text-neutral-900'>
-						<span
-							className='
-              inline-flex h-7 w-7 items-center justify-center 
-              rounded-xl border border-neutral-600 
-              text-xs font-semibold
-            '
-						>
+						<span className='inline-flex h-7 w-7 items-center justify-center rounded-xl border border-neutral-600 text-xs font-semibold'>
 							&lt;/&gt;
 						</span>
 						<span className='font-medium tracking-tight'>CodeByZ</span>
@@ -138,10 +114,7 @@ const SignIn = () => {
 								<button
 									type='button'
 									onClick={() => setShowPassword(!showPassword)}
-									className='
-                    absolute right-3 top-1/2 -translate-y-1/2 
-                    text-gray-500 hover:text-gray-700
-                  '
+									className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700'
 								>
 									{showPassword ? (
 										<svg
@@ -181,9 +154,7 @@ const SignIn = () => {
 						{error && <p className='text-red-500 text-sm'>{error}</p>}
 
 						<Button
-							className='
-                w-full bg-blue-500 text-white hover:bg-blue-600 py-2 rounded-lg
-              '
+							className='w-full bg-blue-500 text-white hover:bg-blue-600 py-2 rounded-lg'
 							size='lg'
 							type='submit'
 							disabled={loading}
@@ -225,14 +196,7 @@ const SignIn = () => {
 				</CardContent>
 
 				{/* RIGHT SIDE */}
-				<div
-					className='
-          w-full md:w-1/2 
-          bg-neutral-900 
-          hidden md:flex 
-          items-center justify-center
-        '
-				>
+				<div className='w-full md:w-1/2 bg-neutral-900 hidden md:flex items-center justify-center'>
 					<img
 						src={Logo}
 						alt='CodeByZ Logo'

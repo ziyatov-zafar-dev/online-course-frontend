@@ -60,7 +60,7 @@ const ResetPassword = () => {
 						Parolni Tiklash
 					</h1>
 					<p className='mt-2 text-sm text-center text-neutral-500'>
-						{email} manziliga yuborilgan kodni kiriting
+						{email} <br /> manziliga yuborilgan kodni kiriting
 					</p>
 
 					<form onSubmit={handleSubmit} className='mt-6 space-y-5'>
