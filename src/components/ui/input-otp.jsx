@@ -1,6 +1,6 @@
-import * as React from "react"
 import { OTPInput, OTPInputContext } from "input-otp"
 import { Minus } from "lucide-react"
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -34,8 +34,8 @@ const InputOTPSlot = React.forwardRef(({ index, className, ...props }, ref) => {
 			className={cn(
 				`relative flex h-12 w-10 items-center justify-center
          border border-input text-lg shadow-sm transition-all
-         rounded-md`,
-				isActive && "ring-2 ring-primary border-primary z-10",
+         rounded-md `,
+				isActive && "ring-2 ring-blue-500 border-blue-500 z-10",
 				className
 			)}
 			{...props}
@@ -58,4 +58,4 @@ const InputOTPSeparator = React.forwardRef(({ ...props }, ref) => (
 ))
 InputOTPSeparator.displayName = "InputOTPSeparator"
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
+export { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot }

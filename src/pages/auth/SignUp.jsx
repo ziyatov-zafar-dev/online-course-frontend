@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
-const SignUp = () => {
+export default function SignUp() {
 	const navigate = useNavigate()
-	const [form, setForm] = useState({
+	const [values, setValues] = useState({
 		firstname: "",
 		lastname: "",
 		email: "",
@@ -19,50 +21,63 @@ const SignUp = () => {
 		birthDate: "",
 	})
 	const [loading, setLoading] = useState(false)
+	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 	const [error, setError] = useState("")
 
-	const [showPassword, setShowPassword] = useState(false)
-	const [showPassword2, setShowPassword2] = useState(false)
-
 	const handleChange = (e) => {
-		const { name, value } = e.target
-		setForm((prev) => ({
-			...prev,
-			[name]: value,
-		}))
+		setValues({ ...values, [e.target.name]: e.target.value })
+		setError("")
 	}
 
 	const handleSubmit = async (e) => {
 		e.preventDefault()
+		setError("")
 
-		if (form?.password !== form?.confirmPassword) {
-			setError("Parollar mos emas")
+		if (!values.firstname.trim()) {
+			setError("Ismingizni kiriting")
+			return
+		}
+
+		if (!values.lastname.trim()) {
+			setError("Familiyangizni kiriting")
+			return
+		}
+
+		if (values.password !== values.confirmPassword) {
+			setError("Parollar mos kelmadi")
+			return
+		}
+
+		if (values.password.length < 6) {
+			setError("Parol kamida 6 ta belgidan iborat bo'lishi kerak")
 			return
 		}
 
 		setLoading(true)
-		setError("")
-
 		try {
-			const response = await signUp({
-				firstname: form?.firstname,
-				lastname: form?.lastname,
-				email: form?.email,
-				password: form?.password,
-				confirmPassword: form?.confirmPassword,
-				birthDate: form?.birthDate,
+			const res = await signUp({
+				firstname: values.firstname,
+				lastname: values.lastname,
+				email: values.email,
+				password: values.password,
+				confirmPassword: values.confirmPassword,
+				birthDate: values.birthDate || null,
 			})
 
-			if (response?.data?.success) {
-				navigate("/signup/verify", { state: { email: form?.email } })
-			} else {
-				setError(response?.data?.message || "Nimadir xato ketdi")
+			if (res?.data?.success) {
+				toast.success("Muvaffaqiyatli!", {
+					description: "Tasdiqlash kodi emailingizga yuborildi.",
+				})
+				navigate("/signup/verify", { state: { email: values.email } })
 			}
 		} catch (err) {
-			setError(
-				err?.response?.data?.message ||
-					"Ro'yxatdan o'tish muvaffaqiyatsiz tugadi"
-			)
+			let msg = "Ro'yxatdan o'tishda xatolik yuz berdi"
+			if (err.response?.data?.message) {
+				msg = err.response.data.message
+			}
+			toast.error("Xatolik!", { description: msg })
+			setError(msg)
 		} finally {
 			setLoading(false)
 		}
@@ -70,251 +85,221 @@ const SignUp = () => {
 
 	return (
 		<div
+			className='min-h-screen w-full flex items-center justify-center px-4 py-6 bg-cover bg-center bg-no-repeat'
 			style={{ backgroundImage: `url(${Bg})` }}
-			className='min-h-screen flex items-center justify-center px-4'
 		>
-			<Card
-				className='
-        w-full max-w-5xl 
-        flex flex-col md:flex-row 
-        rounded-3xl overflow-hidden
-        bg-white/90 backdrop-blur-lg'
-			>
-				{/* CHAP TOMON */}
-				<CardContent
-					className='
-          w-full md:w-1/2 
-          px-6 sm:px-10 
-          py-10 
-          text-neutral-900
-          flex flex-col justify-center'
-				>
-					<div className='mb-10 flex items-center gap-2 text-sm text-neutral-900'>
-						<span className='inline-flex h-7 w-7 items-center justify-center rounded-xl border border-neutral-300 text-xs font-semibold'>
+			<Card className='w-full max-w-5xl flex flex-col md:flex-row rounded-3xl bg-white/95 backdrop-blur-xl shadow-2xl'>
+				{/* LEFT SIDE - Logo */}
+				<div className='hidden md:flex w-1/2 bg-blue-500 items-center justify-center p-8'>
+					<img
+						src={Logo}
+						alt='CodeByZ Logo'
+						className='max-w-full max-h-full object-contain'
+					/>
+				</div>
+
+				{/* RIGHT SIDE - Form */}
+				<CardContent className='w-full md:w-1/2 px-6 sm:px-10 py-8 flex flex-col justify-center '>
+					{/* Logo */}
+					<div className='mb-6 flex items-center gap-2'>
+						<span className='inline-flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500 text-white text-xs font-bold'>
 							&lt;/&gt;
 						</span>
-						<span className='font-medium tracking-tight'>CodeByZ</span>
+						<span className='font-semibold text-lg text-gray-900 tracking-tight'>
+							CodeByZ
+						</span>
 					</div>
 
-					<h1 className='text-3xl font-semibold'>Hisob yarating</h1>
-					<p className='mt-1 text-sm text-neutral-900'>
-						CodeByZ ga qo'shiling va o'rganishni boshlang
+					<h1 className='text-2xl sm:text-3xl font-bold text-gray-900'>
+						Ro'yxatdan o'ting
+					</h1>
+					<p className='mt-2 text-sm text-gray-600'>
+						Bepul hisob yarating va o'rganishni boshlang
 					</p>
 
-					<form className='mt-8 space-y-5' onSubmit={handleSubmit}>
-						<div className='flex gap-3 md:flex-row flex-col'>
-							<div className='flex-1'>
-								<Label htmlFor='firstname' className='mb-1 block'>
-									Ism
+					{/* Error Message */}
+					{error && (
+						<div className='mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm'>
+							{error}
+						</div>
+					)}
+
+					{/* Form */}
+					<form className='mt-5 space-y-4' onSubmit={handleSubmit}>
+						{/* Firstname & Lastname */}
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+							<div className='space-y-1.5'>
+								<Label
+									htmlFor='firstname'
+									className='text-gray-700 font-medium text-sm'
+								>
+									Ism *
 								</Label>
 								<Input
-									name='firstname'
-									value={form?.firstname}
-									onChange={handleChange}
-									placeholder='Ali'
-									className='py-1 px-2 w-full border  outline-blue-500  rounded-md'
-									required
 									id='firstname'
+									name='firstname'
+									type='text'
+									value={values.firstname}
+									onChange={handleChange}
+									className='h-11 px-4 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black'
+									placeholder='Ism'
+									required
 								/>
 							</div>
-							<div className='flex-1'>
-								<Label htmlFor='lastname' className='mb-1 block'>
-									Familiya
+							<div className='space-y-1.5'>
+								<Label
+									htmlFor='lastname'
+									className='text-gray-700 font-medium text-sm'
+								>
+									Familiya *
 								</Label>
 								<Input
-									name='lastname'
-									value={form?.lastname}
-									onChange={handleChange}
-									placeholder='Valiyev'
-									className='py-1 px-2 w-full border  outline-blue-500  rounded-md'
-									required
 									id='lastname'
+									name='lastname'
+									type='text'
+									value={values.lastname}
+									onChange={handleChange}
+									className='h-11 px-4 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black'
+									placeholder='Familiya'
+									required
 								/>
 							</div>
 						</div>
 
-						<div>
-							<Label htmlFor='email' className='mb-1 block'>
-								Email
+						{/* Email */}
+						<div className='space-y-1.5'>
+							<Label
+								htmlFor='email'
+								className='text-gray-700 font-medium text-sm'
+							>
+								Email *
 							</Label>
 							<Input
-								type='email'
-								name='email'
-								value={form?.email}
-								onChange={handleChange}
-								placeholder='me@example.com'
-								className='py-1 px-2 w-full border  outline-blue-500  rounded-md'
-								required
 								id='email'
+								name='email'
+								type='email'
+								value={values.email}
+								onChange={handleChange}
+								className='h-11 px-4 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black'
+								placeholder='me@example.com'
+								required
 							/>
 						</div>
 
-						<div>
-							<Label htmlFor='password' className='mb-1 block'>
-								Parol
+						{/* Birth Date */}
+						<div className='space-y-1.5'>
+							<Label
+								htmlFor='birthDate'
+								className='text-gray-700 font-medium text-sm'
+							>
+								Tug'ilgan sana <br />
+							</Label>
+							<Input
+								id='birthDate'
+								name='birthDate'
+								type='date'
+								value={values.birthDate}
+								onChange={handleChange}
+								className='h-11 px-4 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black bg-white/95 backdrop-blur-xl'
+							/>
+						</div>
+
+						{/* Password */}
+						<div className='space-y-1.5'>
+							<Label
+								htmlFor='password'
+								className='text-gray-700 font-medium text-sm'
+							>
+								Parol *
 							</Label>
 							<div className='relative'>
 								<Input
-									type={showPassword ? "text" : "password"}
 									id='password'
-									placeholder='••••••••'
-									required
-									className='py-1 px-2 w-full pr-10 border  outline-blue-500  rounded-md'
-									value={form?.password}
-									onChange={handleChange}
 									name='password'
+									type={showPassword ? "text" : "password"}
+									value={values.password}
+									onChange={handleChange}
+									className='h-11 px-4 pr-12 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black'
+									placeholder='Kamida 6 ta belgi'
+									required
+									minLength={6}
 								/>
-								{/* show password */}
 								<button
 									type='button'
 									onClick={() => setShowPassword(!showPassword)}
-									className='absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700'
+									className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
 								>
 									{showPassword ? (
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											className='h-5 w-5'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.145.184-2.246.525-3.263M6.24 6.24A9.964 9.964 0 0112 5c5.523 0 10 4.477 10 10 0 1.145-.184 2.246-.525 3.263M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-											/>
-										</svg>
+										<EyeOff className='h-5 w-5' />
 									) : (
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											className='h-5 w-5'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M3 3l18 18M10.477 10.477a3 3 0 104.046 4.046M9.879 5.879a10.05 10.05 0 0110.242 10.242M4.636 4.636a10.05 10.05 0 0114.728 14.728'
-											/>
-										</svg>
+										<Eye className='h-5 w-5' />
 									)}
 								</button>
 							</div>
 						</div>
 
-						<div>
-							<Label htmlFor='confirmPassword' className='mb-1 block'>
-								Parolni tasdiqlang
+						{/* Confirm Password */}
+						<div className='space-y-1.5'>
+							<Label
+								htmlFor='confirmPassword'
+								className='text-gray-700 font-medium text-sm'
+							>
+								Parolni tasdiqlang *
 							</Label>
 							<div className='relative'>
 								<Input
-									type={showPassword2 ? "text" : "password"}
 									id='confirmPassword'
-									placeholder='••••••••'
-									required
-									className='py-1 px-2 w-full pr-10 border  outline-blue-500  rounded-md'
-									value={form?.confirmPassword}
-									onChange={handleChange}
 									name='confirmPassword'
+									type={showConfirmPassword ? "text" : "password"}
+									value={values.confirmPassword}
+									onChange={handleChange}
+									className='h-11 px-4 pr-12 w-full border-2 border-gray-200 rounded-xl outline-blue-500 text-black'
+									placeholder='Parolni qaytadan kiriting'
+									required
+									minLength={6}
 								/>
-								{/* show password */}
 								<button
 									type='button'
-									onClick={() => setShowPassword2(!showPassword2)}
-									className='absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700'
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+									className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
 								>
-									{showPassword2 ? (
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											className='h-5 w-5'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.145.184-2.246.525-3.263M6.24 6.24A9.964 9.964 0 0112 5c5.523 0 10 4.477 10 10 0 1.145-.184 2.246-.525 3.263M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-											/>
-										</svg>
+									{showConfirmPassword ? (
+										<EyeOff className='h-5 w-5' />
 									) : (
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											className='h-5 w-5'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M3 3l18 18M10.477 10.477a3 3 0 104.046 4.046M9.879 5.879a10.05 10.05 0 0110.242 10.242M4.636 4.636a10.05 10.05 0 0114.728 14.728'
-											/>
-										</svg>
+										<Eye className='h-5 w-5' />
 									)}
 								</button>
 							</div>
 						</div>
 
-						<div>
-							<Label htmlFor='birthDate' className='mb-1 block'>
-								Tug'ilgan sana
-							</Label>
-							<Input
-								type='date'
-								name='birthDate'
-								value={form?.birthDate}
-								onChange={handleChange}
-								className='py-1 px-2 w-full border outline-blue-500 rounded-md bg-white/90 backdrop-blur-lg'
-								required
-								id='birthDate'
-							/>
-						</div>
-
-						{error && <p className='text-red-500 text-sm mt-2'>{error}</p>}
-
 						<Button
 							type='submit'
-							className='w-full bg-blue-500 text-white hover:bg-blue-600 py-2 rounded-lg'
-							size='lg'
 							disabled={loading}
+							className='w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/25'
 						>
-							{loading ? "Ro'yxatdan o'tilmoqda..." : "Ro'yxatdan o'tish"}
+							{loading ? (
+								<>
+									<Loader2 className='inline-flex h-5 w-5 items-center justify-center mr-2 animate-spin' />
+									Ro'yxatdan o'tilmoqda...
+								</>
+							) : (
+								"Ro'yxatdan o'tish"
+							)}
 						</Button>
 					</form>
 
-					<p className='mt-8 text-center text-xs text-neutral-900'>
-						Hisobingiz bormi?
-						<a href='/signin' className='font-semibold hover:underline px-1'>
+					{/* Sign In Link */}
+					<p className='mt-6 text-center text-sm text-gray-600'>
+						Hisobingiz bormi?{" "}
+						<Link
+							to='/signin'
+							className='text-blue-500 hover:text-blue-600 font-semibold'
+						>
 							Kirish
-						</a>
+						</Link>
 					</p>
 				</CardContent>
-
-				{/* O'ng tomon */}
-				<div
-					className='w-full md:w-1/2 
-          bg-neutral-900 
-          hidden md:flex 
-          items-center justify-center'
-				>
-					{/* Desktop faqat: rasm */}
-					<div className='hidden md:flex items-center justify-center h-full w-full'>
-						<img
-							src={Logo}
-							alt='CodeByZ Logo'
-							className='h-full w-full object-cover bg-[#3f9cfb]'
-						/>
-					</div>
-				</div>
 			</Card>
 		</div>
 	)
 }
-
-export default SignUp

@@ -1,40 +1,24 @@
-import { useState, useEffect } from "react"
+import { useTheme } from "@/context/ThemeContext"
+import { Moon, Sun } from "lucide-react"
 
-export default function ThemeToggle() {
-	// State for tracking dark mode
-	const [isDark, setIsDark] = useState(false)
-
-	// Check for system theme preference on initial load
-	useEffect(() => {
-		if (localStorage.getItem("theme") === "dark") {
-			document.body.classList.add("dark")
-			setIsDark(true)
-		} else {
-			document.body.classList.remove("dark")
-		}
-	}, [])
-
-	// Toggle dark mode
-	const toggleTheme = () => {
-		setIsDark((prevState) => {
-			const newState = !prevState
-			if (newState) {
-				document.body.classList.add("dark")
-				localStorage.setItem("theme", "dark")
-			} else {
-				document.body.classList.remove("dark")
-				localStorage.setItem("theme", "light")
-			}
-			return newState
-		})
-	}
+export default function ThemeToggle({ collapsed = false }) {
+	const { isDark, toggleTheme } = useTheme()
 
 	return (
 		<button
 			onClick={toggleTheme}
-			className='p-2 bg-gray-200 dark:bg-gray-800 rounded-full'
+			className='flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full'
 		>
-			{isDark ? "🌙" : "🌞"}
+			{isDark ? (
+				<Sun className='h-5 w-5 flex-shrink-0 text-yellow-500' />
+			) : (
+				<Moon className='h-5 w-5 flex-shrink-0 text-blue-500' />
+			)}
+			{!collapsed && (
+				<span className='font-medium text-sm'>
+					{isDark ? "Yorug' rejim" : "Qorong'u rejim"}
+				</span>
+			)}
 		</button>
 	)
 }
